@@ -50,7 +50,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             record=point,
                         )
     except Exception as e:
-        print("%s: Disconnected (%s)" % component["name"], e)
+        print("%s: Disconnected (%s)" % (component["name"], e))
         return
 
 
