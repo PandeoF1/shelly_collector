@@ -33,7 +33,7 @@ async def websocket_endpoint(websocket: WebSocket):
             if data["method"] == "NotifyFullStatus":
                 if "wifi" in data["params"]:
                     component["name"] = data["params"]["wifi"]["sta_ip"]
-                    print(component)
+                    print("%s: Connected" % component["name"])
             if data["method"] == "NotifyStatus":
                 if "switch:0" in data["params"]:
                     if "apower" in data["params"]["switch:0"]:
@@ -44,7 +44,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             .tag("name", component["name"])
                             .time(time.time_ns(), WritePrecision.NS)
                         )
-                        test = WRITE_API.write(
+                        WRITE_API.write(
                             bucket=os.environ["INFLUXDB_BUCKET"],
                             org=os.environ["INFLUXDB_ORG"],
                             record=point,
@@ -55,4 +55,4 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=os.environ["COLLECTOR_IP"], port=8000, reload=True)
+    uvicorn.run(app, host=os.environ["COLLECTOR_IP"], port=8000)
