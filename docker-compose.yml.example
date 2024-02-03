@@ -1,8 +1,8 @@
 version: '3.3'
 services:
-    SpectreBot:
+    shelly_collector:
         image: ghcr.io/pandeof1/shelly_collector:main
-        container_name: SpectreBot
+        container_name: shelly_collector
         environment:
             - INFLUXDB_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
             - INFLUXDB_URL="http://xxx.xxx.xxx.xxx:8086"
