@@ -9,4 +9,6 @@ services:
             - INFLUXDB_BUCKET="xxx"
             - INFLUXDB_ORG="xxx"
             - COLLECTOR_IP="localhost"
+        ports:
+            - 8000:8000
         restart: always
