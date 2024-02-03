@@ -6,6 +6,7 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 import uvicorn
 from dotenv import load_dotenv
+import logging
 
 load_dotenv()
 
@@ -18,6 +19,8 @@ WRITE_CLIENT = InfluxDBClient(
 WRITE_API = WRITE_CLIENT.write_api(write_options=SYNCHRONOUS)
 
 app = FastAPI()
+log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 @app.get("/")
 async def get():
@@ -30,15 +33,15 @@ async def websocket_endpoint(websocket: WebSocket):
         component = {"name": ""}
         while True:
             data = await websocket.receive_json()
-            print(data)
+            log.info(data)
             if data["method"] == "NotifyFullStatus":
                 if "wifi" in data["params"]:
                     component["name"] = data["params"]["wifi"]["sta_ip"]
-                    print("%s: Connected" % component["name"])
+                    log.info("%s: Connected" % component["name"])
             if data["method"] == "NotifyStatus":
                 if "switch:0" in data["params"]:
                     if "apower" in data["params"]["switch:0"]:
-                        print("%s: %s"% (component["name"], data["params"]["switch:0"]["apower"]))
+                        log.info("%s: %s"% (component["name"], data["params"]["switch:0"]["apower"]))
                         point = (
                             Point("switch")
                             .field("apower", data["params"]["switch:0"]["apower"])
@@ -51,7 +54,7 @@ async def websocket_endpoint(websocket: WebSocket):
                             record=point,
                         )
     except Exception as e:
-        print("%s: Disconnected (%s)" % (component["name"], e))
+        log.error("%s: Disconnected (%s)" % (component["name"], e))
         return
 
 
