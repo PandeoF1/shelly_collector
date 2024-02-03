@@ -30,6 +30,7 @@ async def websocket_endpoint(websocket: WebSocket):
         component = {"name": ""}
         while True:
             data = await websocket.receive_json()
+            print(data)
             if data["method"] == "NotifyFullStatus":
                 if "wifi" in data["params"]:
                     component["name"] = data["params"]["wifi"]["sta_ip"]
