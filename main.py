@@ -5,9 +5,9 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from dotenv import load_dotenv
 import requests
-
 import logging
 from colorlog import ColoredFormatter
+from requests.auth import HTTPDigestAuth
 
 LOG_LEVEL = logging.DEBUG
 LOGFORMAT = "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
@@ -49,7 +49,7 @@ def shelly_collector():
     while True:
         try:
             for shelly in gen1:
-                request = requests.get(f"http://{shelly}/meter/0", timeout=2)
+                request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
                 power = data["power"]
                 total = data["total"]
@@ -66,7 +66,7 @@ def shelly_collector():
                 )
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
             for shelly in gen2:
-                request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2)
+                request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
                 power = data["apower"]
                 total = data["aenergy"]["total"]

@@ -10,6 +10,8 @@ services:
             - INFLUXDB_ORG=xxx
             - SHELLY_GEN1=xxx,xxx,xxx
             - SHELLY_GEN2=xxx,xxx,xxx
+            - SHELLY_USER=
+            - SHELLY_PASS=
         ports:
             - 8000:8000
         restart: always
