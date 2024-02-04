@@ -90,7 +90,7 @@ def shelly_collector():
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
         except Exception as e:
             log.error(e)
-        time.sleep(5)
+        time.sleep(10)
 
 #Handle ctrl c
 def signal_handler(sig, frame):
