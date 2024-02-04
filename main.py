@@ -92,12 +92,10 @@ def shelly_collector():
             log.error(e)
         time.sleep(5)
 
-
 #Handle ctrl c
 def signal_handler(sig, frame):
     log.warning('You pressed Ctrl+C!')
     sys.exit(0)
-
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
