@@ -4,12 +4,12 @@ services:
         image: ghcr.io/pandeof1/shelly_collector:main
         container_name: shelly_collector
         environment:
-            - INFLUXDB_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-            - INFLUXDB_URL="http://xxx.xxx.xxx.xxx:8086"
-            - INFLUXDB_BUCKET="xxx"
-            - INFLUXDB_ORG="xxx"
-            - SHELLY_GEN1="xxx,xxx,xxx"
-            - SHELLY_GEN2="xxx,xxx,xxx"
+            - INFLUXDB_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            - INFLUXDB_URL=http://xxx.xxx.xxx.xxx:8086
+            - INFLUXDB_BUCKET=xxx
+            - INFLUXDB_ORG=xxx
+            - SHELLY_GEN1=xxx,xxx,xxx
+            - SHELLY_GEN2=xxx,xxx,xxx
         ports:
             - 8000:8000
         restart: always

@@ -31,11 +31,19 @@ WRITE_CLIENT = InfluxDBClient(
 WRITE_API = WRITE_CLIENT.write_api(write_options=SYNCHRONOUS)
 
 def shelly_collector():
+    if "SHELLY_GEN1" not in os.environ or "SHELLY_GEN2" not in os.environ:
+        log.error("Please set the SHELLY_GEN1 and SHELLY_GEN2 environment variables")
+        sys.exit(1)
+
     gen1 = os.environ["SHELLY_GEN1"].split(",")
     gen2 = os.environ["SHELLY_GEN2"].split(",")
 
     for shelly in gen1 + gen2:
         log.info(f'Shelly {shelly} added to monitoring')
+
+    if (len(gen1) + len(gen2)) == 0:
+        log.error("No Shellys to monitor")
+        sys.exit(1)
 
     log.info("Starting Shelly collector")
     while True:
