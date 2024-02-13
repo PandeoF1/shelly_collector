@@ -5,20 +5,9 @@ from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
 from dotenv import load_dotenv
 import requests
-import logging
-from colorlog import ColoredFormatter
 from requests.auth import HTTPDigestAuth
-
-LOG_LEVEL = logging.DEBUG
-LOGFORMAT = "  %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
-logging.root.setLevel(LOG_LEVEL)
-formatter = ColoredFormatter(LOGFORMAT)
-stream = logging.StreamHandler()
-stream.setLevel(LOG_LEVEL)
-stream.setFormatter(formatter)
-log = logging.getLogger('pythonConfig')
-log.setLevel(LOG_LEVEL)
-log.addHandler(stream)
+from logger import log
+from datetime import datetime
 
 load_dotenv()
 
@@ -46,8 +35,28 @@ def shelly_collector():
         sys.exit(1)
 
     log.info("Starting Shelly collector")
+    tempo = {
+        "last_check": datetime.now(),
+        "color": 0, # 1 = Blue, 2 = White, 3 = Red
+        "check_delay": 0, # minutes (default 30)
+    }
     while True:
         try:
+            log.info((datetime.now() - tempo["last_check"]).seconds)
+            if (datetime.now() - tempo["last_check"]).seconds >= 60 * tempo["check_delay"]:
+                tempo["last_check"] = datetime.now()
+                try:
+                    request = requests.get(f"https://www.api-couleur-tempo.fr/api/jourTempo/today", timeout=2)
+                    data = request.json()
+                    if data["codeJour"] == 0:
+                        log.error("Bad tempo data")
+                        raise Exception(f"{request.status_code} - {request.text}")
+                    tempo["color"] = data["codeJour"]
+                    tempo["last_check"] = datetime.now()
+                    log.info(f"Tempo color: {tempo['color']}")
+                except Exception as e:
+                    log.error(e)
+
             for shelly in gen1:
                 request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
@@ -59,6 +68,7 @@ def shelly_collector():
                     [
                         Point("switch")
                         .tag("shelly", shelly)
+                        .tag("tempo", tempo["color"])
                         .field("power", power)
                         .field("total", total)
                         .time(time.time_ns(), WritePrecision.NS)
@@ -79,6 +89,7 @@ def shelly_collector():
                     [
                         Point("switch")
                         .tag("shelly", shelly)
+                        .tag("tempo", tempo["color"])
                         .field("power", power)
                         .field("total", int(total))
                         .field("temp", temp)
