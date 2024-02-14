@@ -59,6 +59,7 @@ def shelly_collector():
             else:
                 time_ = "HP"
             _total = 0
+            log.info('---')
             for shelly in gen1:
                 request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
@@ -105,6 +106,7 @@ def shelly_collector():
                     ],
                 )
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
+            log.info('---')
             log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_}")
             WRITE_API.write(
                 os.environ["INFLUXDB_BUCKET"],
