@@ -61,21 +61,25 @@ def shelly_collector():
                 time_ = "HP"
             _total = 0
             log.info('---')
-            points = []
             for shelly in gen1:
                 request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
                 power = data["power"]
                 total = data["total"]
                 _total += power
-                points.append([
+                WRITE_API.write(
+                    os.environ["INFLUXDB_BUCKET"],
+                    os.environ["INFLUXDB_ORG"],
+                    [
                         Point("switch")
                         .tag("shelly", shelly)
                         .tag("tempo", tempo["color"])
                         .tag("type", time_)
                         .field("power", power)
                         .field("total", total)
-                ])
+                        .time(time.time_ns(), WritePrecision.NS)
+                    ],
+                )
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
             for shelly in gen2:
                 request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
@@ -86,7 +90,10 @@ def shelly_collector():
                 volt = data["voltage"]
                 current = data["current"]
                 _total += power
-                points.append([
+                WRITE_API.write(
+                    os.environ["INFLUXDB_BUCKET"],
+                    os.environ["INFLUXDB_ORG"],
+                    [
                         Point("switch")
                         .tag("shelly", shelly)
                         .tag("tempo", tempo["color"])
@@ -96,19 +103,12 @@ def shelly_collector():
                         .field("temp", temp)
                         .field("volt", volt)
                         .field("current", current)
-                    ])
+                        .time(time.time_ns(), WritePrecision.NS)
+                    ],
+                )
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
             log.info('---')
             log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_}")
-            for point in points:
-                try:
-                    WRITE_API.write(
-                        os.environ["INFLUXDB_BUCKET"],
-                        os.environ["INFLUXDB_ORG"],
-                        point.time(time.time_ns(), WritePrecision.NS)
-                    )
-                except Exception as e:
-                    log.error(e)
             WRITE_API.write(
                 os.environ["INFLUXDB_BUCKET"],
                 os.environ["INFLUXDB_ORG"],
