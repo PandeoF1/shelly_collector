@@ -107,7 +107,7 @@ def shelly_collector():
                         .time(time.time_ns(), WritePrecision.NS)
                     ],
                 )
-                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
+                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}, Total: {total}, Type: {time_}, Tempo: {tempo['color']}")
             WRITE_API.write(
                 os.environ["INFLUXDB_BUCKET"],
                 os.environ["INFLUXDB_ORG"],
