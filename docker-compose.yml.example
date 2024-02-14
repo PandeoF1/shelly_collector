@@ -10,8 +10,9 @@ services:
             - INFLUXDB_ORG=xxx
             - SHELLY_GEN1=xxx,xxx,xxx
             - SHELLY_GEN2=xxx,xxx,xxx
-            - SHELLY_USER=
-            - SHELLY_PASS=
+            - SHELLY_USER=xx
+            - SHELLY_PASS=xx
+            - TIMEZONE=Europe/Paris
         ports:
             - 8000:8000
         restart: always

@@ -8,6 +8,7 @@ import requests
 from requests.auth import HTTPDigestAuth
 from logger import log
 from datetime import datetime
+import pytz
 
 load_dotenv()
 
@@ -43,7 +44,7 @@ def shelly_collector():
     while True:
         try:
             if (datetime.now() - tempo["last_check"]).seconds >= 60 * tempo["check_delay"]:
-                tempo["last_check"] = datetime.now()
+                tempo["last_check"] = datetime.now(tzinfo=pytz.timezone(os.environ["TIMEZONE"]))
                 try:
                     request = requests.get(f"https://www.api-couleur-tempo.fr/api/jourTempo/today", timeout=2)
                     data = request.json()
@@ -54,7 +55,7 @@ def shelly_collector():
                     tempo["last_check"] = datetime.now()
                 except Exception as e:
                     log.error(e)
-            if datetime.now().hour + 1 <= 6 or datetime.now().hour + 1 >= 22:
+            if datetime.now(tzinfo=pytz.timezone(os.environ["TIMEZONE"])).hour <= 6 or datetime.now(tzinfo=pytz.timezone(os.environ["TIMEZONE"])).hour >= 22:
                 time_ = "HC"
             else:
                 time_ = "HP"
