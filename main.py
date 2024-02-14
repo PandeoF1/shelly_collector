@@ -61,11 +61,13 @@ def shelly_collector():
                 time_ = "HC"
             else:
                 time_ = "HP"
+            _total = 0
             for shelly in gen1:
                 request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
                 power = data["power"]
                 total = data["total"]
+                _total += power
                 WRITE_API.write(
                     os.environ["INFLUXDB_BUCKET"],
                     os.environ["INFLUXDB_ORG"],
@@ -88,6 +90,7 @@ def shelly_collector():
                 temp = data["temperature"]["tC"]
                 volt = data["voltage"]
                 current = data["current"]
+                _total += power
                 WRITE_API.write(
                     os.environ["INFLUXDB_BUCKET"],
                     os.environ["INFLUXDB_ORG"],
@@ -105,6 +108,18 @@ def shelly_collector():
                     ],
                 )
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
+            WRITE_API.write(
+                os.environ["INFLUXDB_BUCKET"],
+                os.environ["INFLUXDB_ORG"],
+                [
+                    Point("switch")
+                    .tag("shelly", "total")
+                    .tag("tempo", tempo["color"])
+                    .tag("type", time_)
+                    .field("power", _total)
+                    .time(time.time_ns(), WritePrecision.NS)
+                ],
+            )
         except Exception as e:
             log.error(e)
         time.sleep(10)
