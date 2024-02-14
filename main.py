@@ -54,8 +54,7 @@ def shelly_collector():
                     tempo["last_check"] = datetime.now()
                 except Exception as e:
                     log.error(e)
-            log.info(datetime.now().hour,datetime.now().hour + 1 <= 6, datetime.now().hour +1 >= 22)
-            if datetime.now().hour +1 >= 22 and datetime.now().hour + 1 <= 6:
+            if datetime.now().hour + 1 <= 6 or datetime.now().hour + 1 >= 22:
                 time_ = "HC"
             else:
                 time_ = "HP"
@@ -105,7 +104,8 @@ def shelly_collector():
                         .time(time.time_ns(), WritePrecision.NS)
                     ],
                 )
-                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}, Total: {total}, Type: {time_}, Tempo: {tempo['color']}")
+                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
+            log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_}")
             WRITE_API.write(
                 os.environ["INFLUXDB_BUCKET"],
                 os.environ["INFLUXDB_ORG"],
