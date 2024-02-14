@@ -54,7 +54,7 @@ def shelly_collector():
                     tempo["last_check"] = datetime.now()
                 except Exception as e:
                     log.error(e)
-            log.info(datetime.now().hour)
+            log.info(datetime.now().hour,datetime.now().hour + 1 <= 6, datetime.now().hour +1 >= 22)
             if datetime.now().hour +1 >= 22 and datetime.now().hour + 1 <= 6:
                 time_ = "HC"
             else:
