@@ -55,7 +55,7 @@ def shelly_collector():
                 except Exception as e:
                     log.error(e)
 
-            if datetime.now().hour >= 22 or datetime.now().hour < 6:
+            if datetime.now().hour +1 >= 22 and datetime.now().hour + 1 <= 6:
                 time_ = "HC"
             else:
                 time_ = "HP"
