@@ -42,7 +42,6 @@ def shelly_collector():
     }
     while True:
         try:
-            log.info((datetime.now() - tempo["last_check"]).seconds)
             if (datetime.now() - tempo["last_check"]).seconds >= 60 * tempo["check_delay"]:
                 tempo["last_check"] = datetime.now()
                 try:
@@ -53,7 +52,6 @@ def shelly_collector():
                         raise Exception(f"{request.status_code} - {request.text}")
                     tempo["color"] = data["codeJour"]
                     tempo["last_check"] = datetime.now()
-                    log.info(f"Tempo color: {tempo['color']}")
                 except Exception as e:
                     log.error(e)
 
