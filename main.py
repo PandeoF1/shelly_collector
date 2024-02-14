@@ -57,6 +57,12 @@ def shelly_collector():
                 except Exception as e:
                     log.error(e)
 
+            if datetime.now().hour >= 22 or datetime.now().hour < 6:
+                hp = 0
+                hc = 1
+            else:
+                hp = 1
+                hc = 0
             for shelly in gen1:
                 request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
@@ -69,6 +75,8 @@ def shelly_collector():
                         Point("switch")
                         .tag("shelly", shelly)
                         .tag("tempo", tempo["color"])
+                        .tag("hp", hp)
+                        .tag("hc", hc)
                         .field("power", power)
                         .field("total", total)
                         .time(time.time_ns(), WritePrecision.NS)
@@ -90,6 +98,8 @@ def shelly_collector():
                         Point("switch")
                         .tag("shelly", shelly)
                         .tag("tempo", tempo["color"])
+                        .tag("hp", hp)
+                        .tag("hc", hc)
                         .field("power", power)
                         .field("total", int(total))
                         .field("temp", temp)
