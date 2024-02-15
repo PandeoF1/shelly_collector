@@ -81,7 +81,7 @@ def shelly_collector():
                         .time(time.time_ns(), WritePrecision.NS)
                     ],
                 )
-                log.info(f"Shelly {shelly} - Power: {power}, Total: {total} | {datetime.now(pytz.timezone(os.environ["TIMEZONE"]))}")
+                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
             for shelly in gen2:
                 request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
@@ -109,7 +109,7 @@ def shelly_collector():
                 )
                 log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
             log.info('---')
-            log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_}")
+            log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_} | {datetime.now(pytz.timezone(os.environ["TIMEZONE"]))}")
             WRITE_API.write(
                 os.environ["INFLUXDB_BUCKET"],
                 os.environ["INFLUXDB_ORG"],
