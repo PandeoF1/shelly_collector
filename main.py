@@ -55,7 +55,8 @@ def shelly_collector():
                     tempo["last_check"] = datetime.now()
                 except Exception as e:
                     log.error(e)
-            if pytz.timezone(os.environ["TIMEZONE"]).localize(datetime.now()).hour <= 6 or pytz.timezone(os.environ["TIMEZONE"]).localize(datetime.now()).hour >= 22:
+            log.info(datetime.now(pytz.timezone(os.environ["TIMEZONE"])).hour)
+            if datetime.now(pytz.timezone(os.environ["TIMEZONE"])).hour <= 6 or datetime.now(pytz.timezone(os.environ["TIMEZONE"])).hour >= 22:
                 time_ = "HC"
             else:
                 time_ = "HP"
