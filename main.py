@@ -43,6 +43,7 @@ def shelly_collector():
     }
     while True:
         try:
+            # update date.time
             if (datetime.now() - tempo["last_check"]).seconds >= 60 * tempo["check_delay"]:
                 try:
                     log.info("Checking tempo")
@@ -55,7 +56,6 @@ def shelly_collector():
                     tempo["last_check"] = datetime.now()
                 except Exception as e:
                     log.error(e)
-            log.info(datetime.now(pytz.timezone(os.environ["TIMEZONE"])).hour)
             if datetime.now(pytz.timezone(os.environ["TIMEZONE"])).hour <= 6 or datetime.now(pytz.timezone(os.environ["TIMEZONE"])).hour >= 22:
                 time_ = "HC"
             else:
@@ -81,7 +81,7 @@ def shelly_collector():
                         .time(time.time_ns(), WritePrecision.NS)
                     ],
                 )
-                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
+                log.info(f"Shelly {shelly} - Power: {power}, Total: {total} | {datetime.now(pytz.timezone(os.environ["TIMEZONE"]))}")
             for shelly in gen2:
                 request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
                 data = request.json()
