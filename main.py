@@ -43,19 +43,20 @@ def shelly_collector():
     }
     while True:
         try:
-            if (pytz.timezone("Europe/Paris").localize(datetime.now()) - tempo["last_check"]).seconds >= 60 * tempo["check_delay"]:
-                tempo["last_check"] = pytz.timezone("Europe/Paris").localize(datetime.now())
+            if (datetime.now() - tempo["last_check"]).seconds >= 60 * tempo["check_delay"]:
+                tempo["last_check"] = datetime.now()
                 try:
+                    log.info("Checking tempo")
                     request = requests.get(f"https://www.api-couleur-tempo.fr/api/jourTempo/today", timeout=2)
                     data = request.json()
                     if data["codeJour"] == 0:
                         log.error("Bad tempo data")
                         raise Exception(f"{request.status_code} - {request.text}")
                     tempo["color"] = data["codeJour"]
-                    tempo["last_check"] = datetime.now()
+                    tempo["last_check"] = pytz.timezone(os.environ["TIMEZONE"]).localize(datetime.now())
                 except Exception as e:
                     log.error(e)
-            if pytz.timezone("Europe/Paris").localize(datetime.now()).hour <= 6 or pytz.timezone("Europe/Paris").localize(datetime.now()).hour >= 22:
+            if pytz.timezone(os.environ["TIMEZONE"]).localize(datetime.now()).hour <= 6 or pytz.timezone(os.environ["TIMEZONE"]).localize(datetime.now()).hour >= 22:
                 time_ = "HC"
             else:
                 time_ = "HP"
