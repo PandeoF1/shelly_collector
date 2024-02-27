@@ -63,51 +63,57 @@ def shelly_collector():
             _total = 0
             log.info('---')
             for shelly in gen1:
-                request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
-                data = request.json()
-                power = data["power"]
-                total = data["total"]
-                _total += power
-                WRITE_API.write(
-                    os.environ["INFLUXDB_BUCKET"],
-                    os.environ["INFLUXDB_ORG"],
-                    [
-                        Point("switch")
-                        .tag("shelly", shelly)
-                        .tag("tempo", tempo["color"])
-                        .tag("type", time_)
-                        .field("power", power)
-                        .field("total", total)
-                        .time(time.time_ns(), WritePrecision.NS)
-                    ],
-                )
-                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
+                try:
+                    request = requests.get(f"http://{shelly}/meter/0", timeout=2, auth=(os.environ["SHELLY_USER"], os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
+                    data = request.json()
+                    power = data["power"]
+                    total = data["total"]
+                    _total += power
+                    WRITE_API.write(
+                        os.environ["INFLUXDB_BUCKET"],
+                        os.environ["INFLUXDB_ORG"],
+                        [
+                            Point("switch")
+                            .tag("shelly", shelly)
+                            .tag("tempo", tempo["color"])
+                            .tag("type", time_)
+                            .field("power", power)
+                            .field("total", total)
+                            .time(time.time_ns(), WritePrecision.NS)
+                        ],
+                    )
+                    log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
+                except Exception as e:
+                    log.error(e)
             for shelly in gen2:
-                request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
-                data = request.json()
-                power = data["apower"]
-                total = data["aenergy"]["total"]
-                temp = data["temperature"]["tC"]
-                volt = data["voltage"]
-                current = data["current"]
-                _total += power
-                WRITE_API.write(
-                    os.environ["INFLUXDB_BUCKET"],
-                    os.environ["INFLUXDB_ORG"],
-                    [
-                        Point("switch")
-                        .tag("shelly", shelly)
-                        .tag("tempo", tempo["color"])
-                        .tag("type", time_)
-                        .field("power", power)
-                        .field("total", int(total))
-                        .field("temp", temp)
-                        .field("volt", volt)
-                        .field("current", current)
-                        .time(time.time_ns(), WritePrecision.NS)
-                    ],
-                )
-                log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
+                try:
+                    request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
+                    data = request.json()
+                    power = data["apower"]
+                    total = data["aenergy"]["total"]
+                    temp = data["temperature"]["tC"]
+                    volt = data["voltage"]
+                    current = data["current"]
+                    _total += power
+                    WRITE_API.write(
+                        os.environ["INFLUXDB_BUCKET"],
+                        os.environ["INFLUXDB_ORG"],
+                        [
+                            Point("switch")
+                            .tag("shelly", shelly)
+                            .tag("tempo", tempo["color"])
+                            .tag("type", time_)
+                            .field("power", power)
+                            .field("total", int(total))
+                            .field("temp", temp)
+                            .field("volt", volt)
+                            .field("current", current)
+                            .time(time.time_ns(), WritePrecision.NS)
+                        ],
+                    )
+                    log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
+                except Exception as e:
+                    log.error(e)
             log.info('---')
             log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_} | {datetime.now(pytz.timezone(os.environ["TIMEZONE"]))}")
             WRITE_API.write(
