@@ -95,7 +95,7 @@ def shelly_collector():
                                 .tag("shelly", shelly)
                                 .tag("tempo", tempo["color"])
                                 .tag("type", time_)
-                                .field("power", 0)
+                                .field("power", 0.0)
                                 .time(time.time_ns(), WritePrecision.NS)
                             ],
                         )
@@ -140,7 +140,7 @@ def shelly_collector():
                                 .tag("shelly", shelly)
                                 .tag("tempo", tempo["color"])
                                 .tag("type", time_)
-                                .field("power", 0)
+                                .field("power", 0.0)
                                 .time(time.time_ns(), WritePrecision.NS)
                             ],
                         )
