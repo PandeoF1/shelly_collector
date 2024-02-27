@@ -85,6 +85,22 @@ def shelly_collector():
                     log.info(f"Shelly {shelly} - Power: {power}, Total: {total}")
                 except Exception as e:
                     log.error(e)
+                    try:
+                        # Write 0 if error
+                        WRITE_API.write(
+                            os.environ["INFLUXDB_BUCKET"],
+                            os.environ["INFLUXDB_ORG"],
+                            [
+                                Point("switch")
+                                .tag("shelly", shelly)
+                                .tag("tempo", tempo["color"])
+                                .tag("type", time_)
+                                .field("power", 0)
+                                .time(time.time_ns(), WritePrecision.NS)
+                            ],
+                        )
+                    except Exception as e:
+                        log.error(e)
             for shelly in gen2:
                 try:
                     request = requests.get(f"http://{shelly}/rpc/Switch.GetStatus?id=0", timeout=2, auth=HTTPDigestAuth(username=os.environ["SHELLY_USER"],password=os.environ["SHELLY_PASS"]) if os.environ["SHELLY_USER"] and os.environ["SHELLY_PASS"] else None)
@@ -114,6 +130,22 @@ def shelly_collector():
                     log.info(f"Shelly {shelly} - Power: {power}, Total: {total}, Temp: {temp}, Volt: {volt}, Current: {current}")
                 except Exception as e:
                     log.error(e)
+                    try:
+                        # Write 0 if error
+                        WRITE_API.write(
+                            os.environ["INFLUXDB_BUCKET"],
+                            os.environ["INFLUXDB_ORG"],
+                            [
+                                Point("switch")
+                                .tag("shelly", shelly)
+                                .tag("tempo", tempo["color"])
+                                .tag("type", time_)
+                                .field("power", 0)
+                                .time(time.time_ns(), WritePrecision.NS)
+                            ],
+                        )
+                    except Exception as e:
+                        log.error(e)
             log.info('---')
             log.info(f"Total power: {_total}, Tempo: {tempo['color']}, Time: {time_} | {datetime.now(pytz.timezone(os.environ["TIMEZONE"]))}")
             WRITE_API.write(
